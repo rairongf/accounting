@@ -1,26 +1,32 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-//import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
+import { PrismaTransactionService } from 'src/modules/data';
+import { User } from '../entities';
 
 @Injectable()
 export class ValidateUserService {
-  constructor() { }
+  constructor(
+    private readonly prismaTransactionService: PrismaTransactionService,) { }
 
   async handle(
     email: string,
     password: string,
-  ): Promise<{ email: string; id: string; }> {
-    let user: { email: string; id: string; password: string; } | undefined = undefined;
+  ): Promise<User> {
+    const userData = await this.prismaTransactionService.handle<any>(async (prisma) => prisma.user.findUnique({
+      where: { email: email }
+    }));
 
-    if (!user) {
+    if (!userData) {
       console.log('Could not find user');
       throw new UnauthorizedException();
     }
 
-    /* if (user && (await bcrypt.compare(password, user.password))) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return { ...result };
-    } */
+    const user = User.fromPrisma(userData);
+
+    if (user && user.password && (await bcrypt.compare(password, user.password))) {
+      //const { password, ...result } = user;
+      return user;
+    }
 
     console.log('Passwords did not match');
     throw new UnauthorizedException();

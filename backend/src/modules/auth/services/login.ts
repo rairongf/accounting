@@ -7,7 +7,7 @@ export class LoginService {
     private readonly generateUserTokenService: GenerateUserTokenService,
   ) { }
 
-  async handle(user: { id: string; email: string }) {
+  async handle(user: { id: number; email: string }) {
     const token = await this.generateUserTokenService.handle({
       id: user.id,
       email: user.email,

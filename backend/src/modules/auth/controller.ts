@@ -14,10 +14,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Req() req: any) {
-    return await this.loginService.handle({
-      id: req.user.userId,
-      email: req.user.email,
-    });
+    return req.user;
   }
 
   @Post('token/refresh')
