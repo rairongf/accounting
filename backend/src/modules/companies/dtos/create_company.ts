@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsTaxId } from "class-validator";
+import { IsNotEmpty, IsString } from "class-validator";
+import { IsTaxIdNonDigitsEnabled } from "../validators/is_tax_id_non_digits_enabled";
 
 export class CreateCompanyDto {
   @IsString()
@@ -13,7 +14,9 @@ export class CreateCompanyDto {
   @IsNotEmpty()
   tradeName: string;
 
-  @IsTaxId('pt-BR')
+  @IsTaxIdNonDigitsEnabled('pt-BR', {
+    message: args => `${args.property} must be a Tax Identification Number`
+  })
   taxId: string;
 
   @IsString()

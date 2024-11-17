@@ -1,3 +1,5 @@
+import * as prisma from "@prisma/client";
+
 type CompanyConstructorArgs = {
   id: number,
   uuid: string,
@@ -7,47 +9,47 @@ type CompanyConstructorArgs = {
   taxId: string,
   state: string,
   city: string,
+  logo?: string,
   createdAt: Date,
   updatedAt: Date,
-  logo?: string,
   deletedAt?: Date,
 };
 
 export class Company {
-  private readonly id: number;
-  private readonly uuid: string;
+  readonly id: number;
+  readonly uuid: string;
 
   /**
    * Company nickname defined by the user.
    */
-  private readonly name: string;
+  readonly name: string;
 
   /**
    * The legal name is the name that appears in the formal documents.
    * 
    * These names often have a “legal ending” such as LLC, Inc., or LLP.
    */
-  private readonly legalName: string;
+  readonly legalName: string;
 
   /**
    * Trade/Business/Fictitious/DBA company name.
    */
-  private readonly tradeName: string;
+  readonly tradeName: string;
 
   /**
    * Company Tax Identification Number. Depends on the jurisdiction.
    */
-  private readonly taxId: string;
+  readonly taxId: string;
 
   /**
    * Federated state.
    */
-  private readonly state: string;
-  private readonly city: string;
-  private readonly logo?: string;
-  private readonly createdAt: Date;
-  private readonly updatedAt: Date;
-  private readonly deletedAt?: Date;
+  readonly state: string;
+  readonly city: string;
+  readonly logo?: string;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+  readonly deletedAt?: Date;
 
   constructor(args: CompanyConstructorArgs) {
     this.id = args.id;
@@ -62,5 +64,18 @@ export class Company {
     this.createdAt = args.createdAt;
     this.updatedAt = args.updatedAt;
     this.deletedAt = args.deletedAt;
+  }
+
+  static fromPrisma(args: prisma.Company): Company {
+    return new Company({
+      ...args,
+      legalName: args.legal_name,
+      tradeName: args.trade_name,
+      taxId: args.tax_id,
+      logo: args.logo ?? undefined,
+      createdAt: args.created_at,
+      updatedAt: args.updated_at,
+      deletedAt: args.deleted_at ?? undefined,
+    });
   }
 }
