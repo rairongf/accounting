@@ -16,12 +16,10 @@ datasource db {
 }
 
 model User {
-  id         Int    @id @default(autoincrement())
-  uuid       String @unique @default(uuid()) @db.Uuid
-  first_name String
-  last_name  String
-  email      String @unique
-  password   String
+  id       Int    @id @default(autoincrement())
+  uuid     String @unique @default(uuid()) @db.Uuid
+  email    String @unique
+  password String
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
@@ -34,29 +32,36 @@ model Token {
   uuid          String   @unique @default(uuid()) @db.Uuid
   access_token  String   @unique
   refresh_token String   @unique
-  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id       Int      @unique
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 }
 
-enum KPIType {
-  TOTAL_VALUE
-  ACTIVE_CONTRACTS_COUNT
-  //TODO: add third kpi
-  //TODO: add fourth kpi
+// TOTAL_VALUE
+// ACTIVE_CONTRACTS_COUNT
+// ACTIVE_COMPANIES_COUNT
+// MEAN_CONTRACTS_BY_COMPANIES
+model KpiType {
+  name String @id
+  sort Int    @unique
+
+  kpis Kpi[]
 }
 
-model KPI {
+model Kpi {
   id   Int    @id @default(autoincrement())
   uuid String @unique @default(uuid()) @db.Uuid
 
-  type  KPIType
-  value Float?
+  kpiType KpiType @relation(fields: [type], references: [name], onDelete: NoAction, onUpdate: Cascade)
+  type    String
+  value   Float?
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   deleted_at DateTime?
+
+  @@index([created_at(sort: Desc)])
 }
 
 model Company {
@@ -94,12 +99,16 @@ model Contract {
   effective_date DateTime
   signed_at      DateTime
 
-  company    Company @relation(fields: [company_id], references: [id], onDelete: NoAction)
-  company_id Int     @unique
+  company    Company @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  company_id Int
+
+  services Service[]
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   deleted_at DateTime?
+
+  @@index([effective_date(sort: Desc), signed_at(sort: Desc), fee(sort: Asc), created_at(sort: Desc)])
 }
 
 model Department {
@@ -118,7 +127,11 @@ model Service {
   id   Int    @id @default(autoincrement())
   uuid String @unique @default(uuid()) @db.Uuid
 
-  departments Department[]
+  name String
+
+  department    Department @relation(fields: [department_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  department_id Int
+  contracts     Contract[]
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
