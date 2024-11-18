@@ -30,8 +30,7 @@ export class FindManyKpisService {
           },
           orderBy: {
             created_at: 'desc'
-          },
-          take: query.amountPerType,
+          }
         }
       },
       orderBy: {

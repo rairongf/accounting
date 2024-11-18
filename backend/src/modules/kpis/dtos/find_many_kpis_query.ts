@@ -1,14 +1,17 @@
-import { IsIn, IsInt, IsOptional, Max, Min } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsIn, IsOptional } from "class-validator";
 import { KpiType } from "../entities";
 
 export class FindManyKpisQueryDto {
-  @IsOptional()
+  @Transform(({ value }) => Array.isArray(value) ? value : [value])
   @IsIn(KpiType.allTypes, { each: true })
-  types: string[];
-
   @IsOptional()
-  @IsInt()
+  types: string[] = KpiType.allTypes;
+
+  /* @Max(4)
   @Min(1)
-  @Max(4)
-  amountPerType: number = 1;
+  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
+  amountPerType: number = 1; */
 }
