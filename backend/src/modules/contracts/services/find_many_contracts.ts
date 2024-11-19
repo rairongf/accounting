@@ -6,6 +6,7 @@ import { FindManyContractsQueryDto } from '../dtos';
 import { Contract } from '../entities/contract';
 
 type ContractEntryData = {
+  id: number;
   company: string;
   effectiveDate: Date;
   signedAt: Date;
@@ -70,6 +71,7 @@ export class FindManyContractsService {
       const departmentsNames = new Set(e.services.map((service) => service.department.name));
 
       return {
+        id: e.id,
         company: e.company.name,
         effectiveDate: contract.effectiveDate,
         signedAt: contract.signedAt,
