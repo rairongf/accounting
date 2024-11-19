@@ -1,5 +1,12 @@
 {
-  "HomePage": {
-    "title": "Hello world!"
+  "route_names": {
+    "companies": "Empresas",
+    "list": "Listagem",
+    "add": "Novo cadastro",
+    "dashboard": "Dashboard",
+    "summary": "Resumo dos Contratos"
+  },
+  "button_labels": {
+    "add_company": "Novo Cadastro"
   }
 }
