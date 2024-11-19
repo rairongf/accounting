@@ -12,6 +12,7 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "app-lime": "#C1CE4B"
       },
     },
   },
