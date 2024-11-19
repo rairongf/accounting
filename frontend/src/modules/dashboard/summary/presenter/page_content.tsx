@@ -3,145 +3,105 @@
 import {
   Column,
   PageScaffold,
+  PaginatedRepositoryArguments,
   Row,
+  SortDirectionOrUndefined,
   TabButton,
   Table,
+  TableAppliedSortDirectionByColumn,
   TableColumnData,
   TableRowCellsData,
   TableRowData,
   TableState,
 } from "@/modules/common";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { twJoin } from "tailwind-merge";
+import {
+  findManyContracts,
+  FindManyContractsRepositoryAcceptableSortByValues,
+  FindManyContractsRepositoryQuery,
+  findManyKpis,
+  FindManyKpisRepositoryKpiData,
+} from "../infra";
 import { KpiItem } from "./kpi_item";
 
 type ContractsSummaryTableRowData = TableRowData & {
   company: string;
-  effectiveDate: string;
-  signedAt: string;
-  fee: string;
+  effectiveDate: Date;
+  signedAt: Date;
+  fee: number;
   department: string;
 };
 
 export function DashboardSummaryPageContent() {
   const routeNames = useTranslations("route_names");
-
-  const rows: ContractsSummaryTableRowData[] = [
-    {
-      id: "1",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "2%",
-      department: "Indiretos",
-    },
-    {
-      id: "2",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "10%",
-      department: "Financeiro",
-    },
-    {
-      id: "3",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "15%",
-      department: "Jurídico",
-    },
-    {
-      id: "4",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "30%",
-      department: "Financeiro",
-    },
-    {
-      id: "5",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "30%",
-      department: "Financeiro",
-    },
-    {
-      id: "6",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "30%",
-      department: "Financeiro",
-    },
-    {
-      id: "7",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "30%",
-      department: "Financeiro",
-    },
-    {
-      id: "8",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "30%",
-      department: "Financeiro",
-    },
-    {
-      id: "9",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "30%",
-      department: "Financeiro",
-    },
-    {
-      id: "10",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "30%",
-      department: "Financeiro",
-    },
-    {
-      id: "11",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "30%",
-      department: "Financeiro",
-    },
-    {
-      id: "12",
-      company: "Sit Dot LTDA",
-      effectiveDate: "15/06/2024",
-      signedAt: "15/06/2024",
-      fee: "30%",
-      department: "Financeiro",
-    },
-  ];
-
-  const [tableState, setTableState] = useState<
-    TableState<ContractsSummaryTableRowData>
-  >({
-    elements: [...rows],
-    currentPage: 1,
-    totalElements: rows.length,
-    totalPages: 2,
-  });
-
   const columns: TableColumnData[] = [
     { id: "company", label: "Cliente" },
-    { id: "effectiveDate", label: "Data de Vigência" },
-    { id: "signedAt", label: "Data Assinatura" },
+    { id: "effective_date", label: "Data de Vigência" },
+    { id: "signed_at", label: "Data Assinatura" },
     { id: "fee", label: "Valor" },
     { id: "department", label: "Departamento" },
   ];
+  const [tableState, setTableState] = useState<
+    TableState<ContractsSummaryTableRowData>
+  >({
+    elements: [],
+    currentPage: 1,
+    totalElements: 0,
+    totalPages: 2,
+  });
+  const [sort, changeSort] =
+    useState<[TableColumnData["id"], SortDirectionOrUndefined]>();
+
+  async function getDataAndUpdateState(
+    args?: PaginatedRepositoryArguments<FindManyContractsRepositoryQuery>
+  ) {
+    const { data, didSucceed } = await findManyContracts({ ...args });
+    if (!didSucceed) return;
+    setTableState({
+      elements: data.elements,
+      currentPage: data.currentPage,
+      totalPages: data.totalPages,
+      totalElements: data.totalElements,
+    });
+  }
+
+  useEffect(() => {
+    if (!sort) {
+      getDataAndUpdateState();
+      return;
+    }
+
+    const [columnId, direction] = sort;
+    getDataAndUpdateState({
+      sortBy: columnId as FindManyContractsRepositoryAcceptableSortByValues,
+      sortDirection: direction,
+    });
+  }, [sort]);
+
+  const appliedSort: TableAppliedSortDirectionByColumn = {
+    [columns[0].id]: undefined,
+    [columns[1].id]: undefined,
+    [columns[2].id]: undefined,
+    [columns[3].id]: undefined,
+    [columns[4].id]: undefined,
+  };
+  if (sort) {
+    appliedSort[sort[0]] = sort[1];
+  }
+
+  const [kpis, setKpis] = useState<FindManyKpisRepositoryKpiData[]>([]);
+  useEffect(() => {
+    async function getKpis() {
+      const response = await findManyKpis({});
+      if (!response.didSucceed) return;
+
+      setKpis([...response.data]);
+    }
+
+    getKpis();
+  }, []);
 
   return (
     <PageScaffold title={routeNames("dashboard")} className="overflow-y-auto">
@@ -159,32 +119,14 @@ export function DashboardSummaryPageContent() {
             Métricas dos contratos
           </p>
           <Row className="gap-2 w-full mb-8 mt-2">
-            <KpiItem
-              className="basis-1/4"
-              label="Valor"
-              value="2.9 Mi"
-              iconName="paid"
-            />
-            <KpiItem
-              className="basis-1/4"
-              label="Meta Financeira"
-              value="3.4 M"
-              iconName="trending_up"
-              growthRatio={1.85}
-            />
-            <KpiItem
-              className="basis-1/4"
-              label="Quantidade"
-              value="47"
-              iconName="workspaces"
-            />
-            <KpiItem
-              className="basis-1/4"
-              label="Meta Qtde"
-              value="10"
-              iconName="trending_up"
-              growthRatio={0.3}
-            />
+            {kpis.map((kpi, index) => (
+              <KpiItem
+                key={index}
+                className="basis-1/4"
+                typeName={kpi.name}
+                value={kpi.value ? `${kpi.value}` : "-"}
+              />
+            ))}
           </Row>
           <Table
             rows={tableState.elements}
@@ -193,8 +135,8 @@ export function DashboardSummaryPageContent() {
                 ...object,
                 [row.id]: {
                   [columns[0].id]: row.company,
-                  [columns[1].id]: row.effectiveDate,
-                  [columns[2].id]: row.signedAt,
+                  [columns[1].id]: row.effectiveDate.toString(),
+                  [columns[2].id]: row.signedAt.toString(),
                   [columns[3].id]: row.fee,
                   [columns[4].id]: row.department,
                 },
@@ -205,11 +147,30 @@ export function DashboardSummaryPageContent() {
             pagination={{
               initialPage: tableState.currentPage,
               totalPages: tableState.totalPages,
-              onPageChanged: (page) => console.log("Page changed to: ", page),
+              onPageChanged: (page, limit) => {
+                console.log("Page changed to: ", page);
+                getDataAndUpdateState({ page, limit });
+              },
               totalElements: tableState.totalElements,
-              initialLimit: tableState.elements.length,
-              onLimitChanged: (limit) =>
-                console.log("Limit changed to: ", limit),
+              initialLimit: 10,
+              onLimitChanged: (limit, page) => {
+                console.log("Limit changed to: ", limit);
+                getDataAndUpdateState({ limit, page });
+              },
+            }}
+            appliedSortDirectionByColumn={appliedSort}
+            onColumnSortPressed={(column) => {
+              console.log("Change sort by column: ", column);
+              changeSort((sort) => {
+                if (!sort) return [column.id, "asc"];
+
+                const [columnId, direction] = sort;
+                if (columnId != column.id) return [column.id, "asc"];
+
+                if (!direction) return [column.id, "asc"];
+                if (direction === "asc") return [column.id, "desc"];
+                return undefined;
+              });
             }}
             selectionMode="multiple"
           />
