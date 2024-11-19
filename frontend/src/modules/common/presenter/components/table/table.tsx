@@ -60,7 +60,7 @@ export function Table<R extends TableRowData, C extends TableColumnData>({
               {props.columns.map((c) => (
                 <TableHeaderLabel
                   key={c.id}
-                  id={c.id}
+                  id={`${c.id}`}
                   label={c.label}
                   appliedFiltersCount={
                     props.appliedFiltersCountByColumn?.[c.id]

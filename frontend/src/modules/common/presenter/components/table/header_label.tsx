@@ -1,3 +1,4 @@
+import { twJoin } from "tailwind-merge";
 import { Button } from "../buttons";
 import { Icon } from "../icon";
 
@@ -19,7 +20,7 @@ export function TableHeaderLabel({
 }: Readonly<TableHeaderLabelProps>) {
   return (
     <th className={`text-center text-white text-sm font-bold bg-app-lime p-3`}>
-      <div className="flex justify-center items-center gap-2">
+      <div className="flex justify-center items-center gap-1">
         <span className="align-middle">{label}</span>
         {appliedFiltersCount != null && (
           <Button onClick={onFilterClick} className="relative p-[2px]">
@@ -33,14 +34,20 @@ export function TableHeaderLabel({
             )}
           </Button>
         )}
-        {appliedSortDirection && (
-          <Button onClick={onSortClick} className="p-[2px]">
+        {onSortClick && (
+          <Button
+            onClick={onSortClick}
+            className="group size-5 flex items-center"
+          >
             <Icon
-              className={"text-xl m-auto !block"}
+              className={twJoin(
+                "text-xl",
+                appliedSortDirection ? "!block" : "!hidden group-hover:!block"
+              )}
               name={
-                appliedSortDirection == "asc"
-                  ? "arrow_drop_up"
-                  : "arrow_drop_down"
+                appliedSortDirection === "desc"
+                  ? "arrow_drop_down"
+                  : "arrow_drop_up"
               }
             />
           </Button>

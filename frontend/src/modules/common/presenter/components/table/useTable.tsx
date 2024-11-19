@@ -2,19 +2,27 @@
 
 import { useState } from "react";
 
+type Identifier = string | number;
+
 export interface TableRowData {
-  id: string;
+  id: Identifier;
 }
 
 export interface TableColumnData {
-  id: string;
+  id: Identifier;
   label: string;
 }
 
 export interface TableRowCellsData {
-  [rowId: string]: {
-    [columnId: string]: React.ReactNode;
+  [rowId: Identifier]: {
+    [columnId: Identifier]: React.ReactNode;
   };
+}
+
+export type SortDirectionOrUndefined = "asc" | "desc" | undefined;
+
+export interface TableAppliedSortDirectionByColumn {
+  [columnId: Identifier]: SortDirectionOrUndefined;
 }
 
 /// Ref: https://github.com/nextui-org/nextui/blob/main/packages/components/table/src/use-table.ts
@@ -43,13 +51,11 @@ interface Props<R extends TableRowData, C extends TableColumnData> {
 
   /// Column applied filters count (OPTIONAL)
   appliedFiltersCountByColumn?: {
-    [columnId: string]: number;
+    [columnId: Identifier]: number;
   };
 
   /// Column sorting (?)
-  appliedSortDirectionByColumn?: {
-    [columnId: string]: "asc" | "desc" | undefined;
-  };
+  appliedSortDirectionByColumn?: TableAppliedSortDirectionByColumn;
 
   ///
   onColumnFilterPressed?: (column: C) => void;
@@ -63,15 +69,15 @@ interface Props<R extends TableRowData, C extends TableColumnData> {
     totalPages: number;
     totalElements: number;
     initialLimit: number;
-    onPageChanged: (page: number) => void;
-    onLimitChanged: (limit: number) => void;
+    onPageChanged: (page: number, limit: number) => void;
+    onLimitChanged: (limit: number, page: number) => void;
   };
 
   /// Allow multiple selection (default false)
   selectionMode?: "single" | "multiple" | "none";
 
   ///
-  onSelectionChanged?: (selectedIds: string[]) => void;
+  onSelectionChanged?: (selectedIds: Identifier[]) => void;
 }
 
 export type UseTableProps<
@@ -83,7 +89,7 @@ export function useTable<R extends TableRowData, C extends TableColumnData>({
   selectionMode = "none",
   ...originalProps
 }: UseTableProps<R, C>) {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Identifier[]>([]);
   const [currentPage, setCurrentPage] = useState(
     originalProps.pagination?.initialPage ?? 1
   );
@@ -92,11 +98,11 @@ export function useTable<R extends TableRowData, C extends TableColumnData>({
   );
 
   /// Handle row selection events
-  const isRowOfIdSelected = (rowId: string) => {
+  const isRowOfIdSelected = (rowId: Identifier) => {
     return selectedIds.some((id) => id === rowId);
   };
 
-  const changeSelectedRows = (value: string[]) => {
+  const changeSelectedRows = (value: Identifier[]) => {
     setSelectedIds(value);
     originalProps.onSelectionChanged?.(value);
   };
@@ -127,7 +133,7 @@ export function useTable<R extends TableRowData, C extends TableColumnData>({
     if (isPageSelected(page)) return;
 
     setCurrentPage(page);
-    originalProps.pagination?.onPageChanged(page);
+    originalProps.pagination?.onPageChanged(page, limit);
   };
 
   const isLimitSelected = (value: number) => limit == value;
@@ -136,7 +142,7 @@ export function useTable<R extends TableRowData, C extends TableColumnData>({
     if (isLimitSelected(value)) return;
 
     changeLimit(value);
-    originalProps.pagination?.onLimitChanged(value);
+    originalProps.pagination?.onLimitChanged(value, currentPage);
   };
 
   return {
