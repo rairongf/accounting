@@ -70,6 +70,19 @@ export function CompaniesAddPageContent() {
       return true;
     });
 
+  const contractValues = Object.values({ ...formState[0].contract }).filter(
+    (v) => v != undefined
+  );
+  const isContractDataValid =
+    contractValues.length ===
+      Object.keys({ ...formState[0].contract }).length &&
+    contractValues.every((value) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value;
+    });
+
   return (
     <PageScaffold title={routeNames("add")} className="overflow-y-auto">
       <Column className="justify-start items-stretch w-full h-auto">
@@ -101,12 +114,15 @@ export function CompaniesAddPageContent() {
                 "rounded-md text-sm text-white py-3 px-8",
                 "bg-gray-600 font-bold disabled:bg-gray-400 disabled:font-semibold"
               )}
-              disabled={isAtCompanyStep ? !isCompanyDataValid : false}
+              disabled={
+                isAtCompanyStep ? !isCompanyDataValid : !isContractDataValid
+              }
               onClick={() => {
                 if (isAtCompanyStep && isCompanyDataValid) {
                   changeFormStep("contract");
                   return;
                 }
+                if (!isContractDataValid) return;
               }}
               type={isAtContractStep ? "submit" : "button"}
             >
