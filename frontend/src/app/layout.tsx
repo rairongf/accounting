@@ -1,5 +1,4 @@
 import { AuthProvider, AuthStateProvider } from "@/modules/auth";
-import { DialogProvider } from "@/modules/common";
 import { SessionProvider, SessionStateProvider } from "@/modules/session";
 import { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
@@ -40,9 +39,7 @@ export default async function RootLayout({
           <AuthStateProvider>
             <AuthProvider>
               <SessionStateProvider>
-                <SessionProvider>
-                  <DialogProvider>{children}</DialogProvider>
-                </SessionProvider>
+                <SessionProvider>{children}</SessionProvider>
               </SessionStateProvider>
             </AuthProvider>
           </AuthStateProvider>
