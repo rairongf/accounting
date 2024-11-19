@@ -14,7 +14,7 @@ export type InputProps = Omit<
   rowProps?: RowProps;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
-  labelText?: string;
+  label?: React.ReactNode;
   helperText?: string;
   obscureText?: boolean;
   validator?: (
@@ -28,17 +28,15 @@ export function Input({
   suffix,
   rowProps,
   obscureText = false,
-  labelText,
+  label,
   helperText,
   validator,
   ...props
 }: InputProps) {
   const [isObscure, setIsObscure] = useState<boolean>(obscureText);
 
-  //const inputHasRowSiblings = obscureText || prefix || suffix;
-  //const defaultInputClassName = "outline-none rounded";
   const defaultInputWithSiblingsClassName =
-    "outline-none rounded bg-transparent grow shrink basis-auto my-2 ml-3";
+    "outline-none rounded bg-transparent grow shrink basis-auto my-2 text-sm";
 
   const {
     onChange: onInputChange,
@@ -49,7 +47,7 @@ export function Input({
 
   const inputComponent = (
     <input
-      className={twJoin(defaultInputWithSiblingsClassName, className)}
+      className={twMerge(defaultInputWithSiblingsClassName, className)}
       onChange={(e) => {
         const errorOrNull = validator?.(e);
         setError(errorOrNull);
@@ -64,19 +62,15 @@ export function Input({
 
   return (
     <Column className="items-stretch gap-1.5 w-full">
-      {!!labelText && (
-        <span
-          className={twJoin(
-            "text-start uppercase font-extrabold text-xs",
-            "text-black"
-          )}
-        >
-          {labelText}
+      {!!label && (
+        <span className={twJoin("text-start text-sm text-slate-700")}>
+          {label}
         </span>
       )}
       <Row
         className={twMerge(
-          "justify-start items-center rounded max-w-full gap-2 pr-3",
+          "justify-start items-center max-w-full gap-2 px-3",
+          "rounded-lg border border-gray-400",
           rowClassName
         )}
         {...otherRowProps}
@@ -94,7 +88,7 @@ export function Input({
           >
             <Icon
               name={isObscure ? "visibility_off" : "visibility"}
-              className={twJoin("text-white", "text-lg")}
+              className={twJoin("text-app-lime", "text-lg")}
             />
           </Button>
         )}

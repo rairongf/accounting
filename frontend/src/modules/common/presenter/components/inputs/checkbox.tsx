@@ -20,9 +20,9 @@ export function CheckboxInput({
       <input
         type="checkbox"
         className={twJoin(
-          "relative peer appearance-none rounded-md cursor-pointer",
+          "relative peer appearance-none rounded cursor-pointer",
           "border-[1px] border-gray-500",
-          "checked:bg-indigo-400 checked:border-0 text-white",
+          "checked:bg-app-lime checked:border-0 text-white",
           className,
           sizeStyle,
           "aspect-square"
