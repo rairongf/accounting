@@ -11,7 +11,7 @@ export type IRefreshTokenRepository = BaseRepository<Token, RefreshTokenReposito
 export const refreshToken: IRefreshTokenRepository = ({
   refreshToken
 }: RefreshTokenRepositoryArguments) => {
-  return api.post<Token>('/auth/refresh-token', {
+  return api.post<Token>('/auth/token/refresh', {
     refreshToken
   });
 };

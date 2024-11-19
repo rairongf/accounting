@@ -24,7 +24,7 @@ export const AuthContext = createContext<AuthContextData>(
 
 export function AuthProvider({ children }: BaseContextProps) {
   const {
-    isAuthenticatedState: [isAuthenticated],
+    isAuthenticatedState: [isAuthenticated, setIsAuthenticated],
   } = useAuthState();
   const { keepSignIn } = useKeepSignIn();
   const { signIn } = useSignIn(login);
@@ -32,8 +32,20 @@ export function AuthProvider({ children }: BaseContextProps) {
 
   useEffect(() => {
     keepSignIn({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* const pathname = usePathname();
+  useEffect(() => {
+    console.log("Pathname changed: ", pathname);
+
+    const { [CookiesKeys.accessToken]: accessToken } = parseCookies();
+
+    if (accessToken) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, [pathname]); */
 
   return (
     <AuthContext.Provider

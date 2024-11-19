@@ -31,13 +31,14 @@ export function SessionProvider({ children }: BaseContextProps) {
   useEffect(() => {
     console.log("isAuthenticated:", isAuthenticated);
     if (!isAuthenticated) {
-      setUser(undefined);
-      router.replace("/login");
+      //TODO: removed temporarily
+      //setUser(undefined);
+      //router.replace("/login");
       return;
     }
 
     if (pathname === "/login") {
-      router.replace("/dashboard");
+      router.replace("/dashboard/summary");
       return;
     }
   }, [isAuthenticated]);
