@@ -7,7 +7,7 @@ export type PaginatedRepositoryArguments<A = object> = A & {
    * 
    * Default: 1
    */
-  page: number;
+  page?: number;
 
   /**
    * The maximum amount of items to return per page.
@@ -16,7 +16,7 @@ export type PaginatedRepositoryArguments<A = object> = A & {
    * Min: 10
    * Max: 50
    */
-  limit: number;
+  limit?: number;
 };
 
 export type PaginatedRepository<T, A = unknown> = BaseRepository<
