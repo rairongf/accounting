@@ -5,6 +5,7 @@ import {
   Icon,
   Input,
   PageScaffold,
+  PaginatedRepositoryArguments,
   Table,
   TableColumnData,
   TableRowCellsData,
@@ -13,59 +14,19 @@ import {
 } from "@/modules/common";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { twJoin } from "tailwind-merge";
+import { findManyCompanies, FindManyCompaniesRepositoryQuery } from "../infra";
 
 type CompaniesTableRowData = TableRowData & {
   name: string;
   taxId: string;
   status: string;
-  actions: string;
 };
 
 export function CompaniesListPageContent() {
   const routeNames = useTranslations("route_names");
   const buttonLabels = useTranslations("button_labels");
-
-  const rows: CompaniesTableRowData[] = [
-    {
-      id: "1",
-      name: "Sit Dot LTDA",
-      taxId: "00.000.000/0000-00",
-      status: "Ativa",
-      actions: "open edit delete",
-    },
-    {
-      id: "2",
-      name: "Sit Dot LTDA",
-      taxId: "00.000.000/0000-00",
-      status: "Ativa",
-      actions: "open edit delete",
-    },
-    {
-      id: "3",
-      name: "Sit Dot LTDA",
-      taxId: "00.000.000/0000-00",
-      status: "Ativa",
-      actions: "open edit delete",
-    },
-    {
-      id: "4",
-      name: "Sit Dot LTDA",
-      taxId: "00.000.000/0000-00",
-      status: "Ativa",
-      actions: "open edit delete",
-    },
-  ];
-
-  const [tableState, setTableState] = useState<
-    TableState<CompaniesTableRowData>
-  >({
-    elements: [rows[0]],
-    currentPage: 1,
-    totalElements: rows.length,
-    totalPages: 4,
-  });
 
   const columns: TableColumnData[] = [
     { id: "name", label: "Nome" },
@@ -73,6 +34,54 @@ export function CompaniesListPageContent() {
     { id: "status", label: "Status" },
     { id: "actions", label: "Ações" },
   ];
+
+  const [tableState, setTableState] = useState<
+    TableState<CompaniesTableRowData>
+  >({
+    elements: [],
+    currentPage: 1,
+    totalElements: 0,
+    totalPages: 4,
+  });
+
+  async function getDataAndUpdateState(
+    args?: PaginatedRepositoryArguments<FindManyCompaniesRepositoryQuery>
+  ) {
+    const { data, didSucceed } = await findManyCompanies({ ...args });
+    if (!didSucceed) return;
+    setTableState({
+      elements: data.elements.map((e) => ({
+        ...e,
+        status: e.deletedAt ? "Inativa" : "Ativa",
+      })),
+      currentPage: data.currentPage,
+      totalPages: data.totalPages,
+      totalElements: data.totalElements,
+    });
+  }
+
+  const [search, setSearch] = useState<string>("");
+  let timeout: NodeJS.Timeout | null = null;
+
+  useEffect(() => {
+    if (timeout) clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+      if (!search) {
+        getDataAndUpdateState();
+        return;
+      }
+
+      getDataAndUpdateState({
+        name: search,
+        taxId: search,
+      });
+    }, 1000);
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [search]);
 
   return (
     <PageScaffold
@@ -87,11 +96,14 @@ export function CompaniesListPageContent() {
     >
       <Column className="gap-6 items-stretch w-full h-full">
         <Input
+          id={"search_input"}
           rowProps={{
             className: twJoin("px-4"),
           }}
           suffix={<Icon name={"search"} className={"text-2xl text-app-lime"} />}
           placeholder="Buscar por nome ou CNPJ"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
         <Table
           rows={tableState.elements}
@@ -102,7 +114,7 @@ export function CompaniesListPageContent() {
                 [columns[0].id]: row.name,
                 [columns[1].id]: row.taxId,
                 [columns[2].id]: row.status,
-                [columns[3].id]: row.actions,
+                [columns[3].id]: <>ACTIONS</>,
               },
             }),
             {} as TableRowCellsData
@@ -111,10 +123,12 @@ export function CompaniesListPageContent() {
           pagination={{
             initialPage: tableState.currentPage,
             totalPages: tableState.totalPages,
-            onPageChanged: (page) => console.log("Page changed to: ", page),
+            onPageChanged: (page, limit) =>
+              getDataAndUpdateState({ page, limit }),
             totalElements: tableState.totalElements,
-            initialLimit: tableState.elements.length,
-            onLimitChanged: (limit) => console.log("Limit changed to: ", limit),
+            initialLimit: 10,
+            onLimitChanged: (limit, page) =>
+              getDataAndUpdateState({ page, limit }),
           }}
           selectionMode="multiple"
         />
