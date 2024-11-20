@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - database
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8082
+    networks:
+      - next-node
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    depends_on:
+      - database
+    environment:
+      - NODE_ENV=development
+    networks:
+      - node-postgres
+      - next-node
+
+  database:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - node-postgres
+
+networks:
+  next-node:
+  node-postgres:
+
+volumes:
+  pgdata:

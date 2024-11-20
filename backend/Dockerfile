@@ -20,10 +20,10 @@ COPY . .
 RUN npm run build
 
 # Generate Prisma data models
-RUN npm run prisma:generate
+RUN npm run prisma:migrate-dev
 
 # Expose the application port
 EXPOSE 8082
 
 # Command to run the application
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
