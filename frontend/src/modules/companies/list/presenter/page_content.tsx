@@ -93,8 +93,9 @@ export function CompaniesListPageContent() {
           </div>
         </Link>
       }
+      className="overflow-y-auto"
     >
-      <Column className="gap-6 items-stretch w-full h-full">
+      <Column className="gap-6 items-stretch w-full h-auto">
         <Input
           id={"search_input"}
           rowProps={{

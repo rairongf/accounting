@@ -1,5 +1,8 @@
 import { PrismaClient } from '@prisma/client';
+import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
+
+faker.seed(42);
 
 const prisma = new PrismaClient()
 
@@ -69,6 +72,29 @@ async function main() {
       { value: 5, type: 'ACTIVE_COMPANIES_COUNT', created_at: oneDayAfterNow },
       { value: 3.4, type: 'MEAN_CONTRACTS_BY_COMPANIES', created_at: oneDayAfterNow },
     ]
+  });
+
+  const companies = await prisma.company.createManyAndReturn({
+    data: Array(100).fill(0).map(() => {
+      const name = faker.company.name();
+      return {
+        name: name,
+        legal_name: `${name} [LEGAL]`,
+        trade_name: `${name} [TRADE]`,
+        tax_id: `${faker.string.numeric(2)}.${faker.string.numeric(3)}.${faker.string.numeric(3)}/${faker.string.numeric(4)}-${faker.string.numeric(2)}`,
+        city: faker.location.city(),
+        state: faker.location.state(),
+      };
+    })
+  });
+
+  const contracts = await prisma.contract.createManyAndReturn({
+    data: Array(100).fill(0).map(() => ({
+      company_id: faker.number.int({ min: 1, max: 100 }),
+      effective_date: faker.date.recent(),
+      fee: faker.number.int({ min: 1, max: 50 }),
+      signed_at: faker.date.recent(),
+    }))
   });
 
   console.log({ user, departmentA, departmentB, kpiTypes, kpis });
