@@ -1,3 +1,3 @@
 const UriAssets = {
-  accountingLogo: 'https://fakeimg.pl/1000x400/c1ce4b/ffffff?text=Accounting&font=museo&font_size=96'
+  accountingLogo: 'https://placehold.co/1000x400/ffffff/919191?text=Accounting'
 }
