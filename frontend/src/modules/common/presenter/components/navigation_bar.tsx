@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { twJoin } from "tailwind-merge";
+import { UriAssets } from "../constants";
 import { Icon } from "./icon";
 import { AppImage } from "./image";
 import { Column, Row } from "./layout";

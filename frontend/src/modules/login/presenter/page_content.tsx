@@ -9,6 +9,7 @@ import {
   Icon,
   Input,
   Row,
+  UriAssets,
 } from "@/modules/common";
 import { useState } from "react";
 

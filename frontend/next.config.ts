@@ -19,6 +19,16 @@ const nextConfig: NextConfig = {
     ]
   },
   output: "standalone",
+  images: {
+    dangerouslyAllowSVG: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+    ],
+  },
+
 };
 
 export default withNextIntl(nextConfig);
