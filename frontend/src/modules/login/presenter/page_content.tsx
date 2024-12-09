@@ -28,9 +28,7 @@ export function LoginPageContent() {
     <div className="flex flex-col w-full h-full sm:flex-row">
       <div className="flex h-2/5 bg-white sm:bg-gray-200 sm:w-2/5 sm:h-full justify-center items-center">
         <AppImage
-          src={
-            "https://www.aflconsultores.com.br/wp-content/uploads/2023/08/image-12.svg"
-          }
+          src={UriAssets.accountingLogo}
           height={128}
           width={256}
           className="w-2/5 sm:w-3/5"

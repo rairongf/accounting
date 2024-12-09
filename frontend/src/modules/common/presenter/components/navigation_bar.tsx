@@ -35,9 +35,7 @@ export function NavigationBar() {
     <aside className="bg-white border-r border-gray-300 min-w-72 w-72 max-w-72">
       <Column className="justify-start items-stretch mt-20 gap-4">
         <AppImage
-          src={
-            "https://www.aflconsultores.com.br/wp-content/uploads/2023/08/image-12.svg"
-          }
+          src={UriAssets.accountingLogo}
           height={128}
           width={256}
           className="w-1/2 mx-auto"
